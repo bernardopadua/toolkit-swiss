@@ -1,0 +1,66 @@
+{
+    "translate_it": {
+        "element": "div",
+        "id": "toolkit-parent",
+        "next": [
+            {
+                "element": "div",
+                "id": "tkblack-layer"
+            },
+            {
+                "element": "div",
+                "id": "toolkit-block",
+                "next": [
+                {
+                    "element": "div",
+                    "id": "tkoptions",
+                    "next": { 
+                        "element": "ul",
+                        "for": "2xli",
+                        "data_for": ["1", "2"],
+                        "class_for": ["c1", "c2"],
+                        "attr_for": ["attr:1", "attr:2"]
+                    }
+                },
+                {
+                    "element": "div",
+                    "id": "container-tk",
+                    "next":[
+                        {
+                            "element": "div",
+                            "id": "loader-container",
+                            "style": "width:100%;height:100%;float:left;background-color:white;text-align:center;",
+                            "data": "loader",
+                            "asset": true
+                        },
+                        {
+                            "element": "div",
+                            "id": "container-one",
+                            "style": "display:none;",
+                            "next": [
+                                {
+                                    "element": "div",
+                                    "id": "trt-original",
+                                    "class": "tkcont-child",
+                                    "data": ""
+                                },
+                                {
+                                    "element": "div",
+                                    "id": "trt-translated",
+                                    "class": "tkcont-child",
+                                    "data": ""
+                                }
+                            ]
+                        },
+                        {
+                            "element": "div",
+                            "id": "container-2",
+                            "style": "display:none",
+                            "data": "TESTEEEEEEE1111"
+                        }
+                    ]
+                }]
+            }
+        ]
+    }
+}
