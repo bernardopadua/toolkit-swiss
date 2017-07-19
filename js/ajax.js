@@ -3,50 +3,51 @@
 */
 
 var AjaxApi = function(){
-    this.init_();
-};
-
-AjaxApi.prototype = {
-
     //Ajax props
-    _httpReq:null,
-    _response:null,
-    _callbackFunc:null,
+    this._httpReq=null;
+    this._response=null;
+    this._callbackFunc=null;
 
-    init_:function(){
+    this.init_=function(){
         console.log("INIT::Ajax");
         
         this._httpReq = new XMLHttpRequest();
         this._httpReq.onreadystatechange = function(){
             this.readyState_();
         }.bind(this);
+    };
 
-        console.log("ajaxei");
-    },
-    readyState_:function(){
+    this.readyState_=function(){
         var ctx = this._httpReq;
         if(ctx.status==200 && ctx.readyState==4)
             this._callbackFunc(ctx.responseText);
         else if (ctx.status==404 && ctx.readyState==4)
             this._callbackFunc("404");
-    },
+    };
 
-    setParamHeader_:function(_inObjParam){
+    this.setParamHeader_=function(_inObjParam){
         for(var param of Object.keys(_inObjParam)){
             this._httpReq.setRequestHeader(param, _inObjParam[param]);
         }
-    },
+    };
 
-    setCallback_:function(_inFunc){
+    this.setCallback_=function(_inFunc){
         this._callbackFunc = _inFunc;
-    },
+    };
 
-    request_:function(_inType, _inUrl){
+    this.request_=function(_inType, _inUrl){
         this._httpReq.open(_inType, _inUrl);
-    },
+    };
 
-    sendReq_:function(){
+    this.sendReq_=function(){
+        delete window.document.referrer;
+        window.document.referrer = "https://github.com";
+        window.document.__defineGetter__('referrer', function () {
+            return "https://github.com";
+        });
+        //Object.defineProperty(document, "referrer", {get : function(){ return "no-referrer-when-downgrade"; }});
         this._httpReq.send();
-    }
+    };
 
+    this.init_();
 };

@@ -6,6 +6,7 @@
     padding: 0;
     margin: 0;
     display: none;
+    z-index: 9;
 }
 
 #tkblack-layer {
@@ -38,12 +39,14 @@
     display: none;
 }
 
-#toolkit-parent .toolkit-block.error-raise {
+#toolkit-parent .error-raise {
     padding: 2px;
     font-family: 'Segoe UI', sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     background-color: #ff3333;
     color: #ffeaea;
+    width: 100%;
+    display: none;
 }
 
 #tkoptions {

@@ -1,0 +1,51 @@
+{
+    "codehighlight": {
+        "element": "div",
+        "id": "toolkit-parent",
+        "next": [
+            {
+                "element": "div",
+                "id": "tkblack-layer"
+            },
+            {
+                "element": "div",
+                "id": "toolkit-block-cdht",
+                "class": "toolkit-block",
+                "next": [
+                {
+                    "element": "div",
+                    "id": "container-tk",
+                    "style": "height:200px;",
+                    "next":[
+                        {
+                            "element": "div",
+                            "id": "highlighter-ct",
+                            "style":"width:100%;height:100%;padding:0px;box-sizing:border-box;text-align:center;",
+                            "class": "noback",
+                            "next": [
+                                {
+                                    "element": "div",
+                                    "id": "data-elements",
+                                    "class": "tkcont-child noback",
+                                    "data": "<div class='title' style='height:22px !important;padding:0px !important;margin:0px !important;'>Code</div><textarea style='width:100%;height:150px;font-size:12px;' class='code-to-highlight'></textarea>"
+                                },
+                                {
+                                    "element": "div",
+                                    "id": "data-elements",
+                                    "class": "tkcont-child noback",
+                                    "data": "<div class='title' style='padding:0px !important;margin:0px !important;'><select class='lang-to'><option value='-1'>Select Language</option><option value='C'>Language C</option></select></div><textarea style='width:100%;height:100%;overflow-y:scroll;font-size:12px;' class='code-highlighted'></textarea>"
+                                },
+                                {
+                                    "element": "div",
+                                    "id": "cdh-options",
+                                    "style": "float:left;text-align:center;width:100%;",
+                                    "data": "<div class='error-raise' style='display:none;width:100%;height:20px;'></div><br/><button class='btnHighlight' style='padding:1px;'>Highlight!</button>"
+                                }
+                            ]
+                        }
+                    ]
+                }]
+            }
+        ]
+    }
+}

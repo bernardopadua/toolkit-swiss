@@ -20,7 +20,7 @@
                         "for": "3xli",
                         "data_for": ["Translate", "Definition", "Slang"],
                         "class_for": ["tit-trt", "tit-def", "tit-slang"],
-                        "attr_for": ["container:translate-container", "container:definition-container", "container:slang-container"]
+                        "attr_for": ["container:loader-container", "container:loader-container", "container:loader-container"]
                     }
                 },
                 {

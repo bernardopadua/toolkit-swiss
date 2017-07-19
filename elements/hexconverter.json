@@ -1,5 +1,5 @@
 {
-    "translate_it": {
+    "hexconverter": {
         "element": "div",
         "id": "toolkit-parent",
         "next": [
@@ -49,7 +49,7 @@
                                     "element": "div",
                                     "id": "converter-options",
                                     "style": "float:left;text-align:center;width:100%;",
-                                    "data": "<div class='error-raise' style='display:none;width:100%;height:20px;'></div><br/><button class='btnConverter' style='padding:1px;'>Convert</button>"
+                                    "data": "<div class='error-raise'></div><br/><button class='btnConverter' style='padding:1px;'>Convert</button>"
                                 }
                             ]
                         },
@@ -63,18 +63,21 @@
                                 {
                                     "element": "div",
                                     "id": "hexcalc-data",
+                                    "class": "hexcalc-data",
                                     "style": "width:100%;height:100%;text-align:center;float:left;",
                                     "data": "<div class='title' style='font-size:14px;'>Hex Calculator</div> <input class='h-one' value='' type='text' /> <select class='opt-calc'><option value='add'>+</option><option value='sub'>-</option><option value='mul'>*</option><option value='div'>/</option><option value='xor'>XOR</option></select> <input class='h-two' value='' type='text' />"
                                 },
                                 {
                                     "element": "div",
                                     "id": "hex-result-calc",
-                                    "style": "text-align:center;padding-top:5px;padding-bottom:5px;float:left;width:100%;height:22px;font-size:16px;border-bottom-color:red;border-bottom:1px solid;font-weight:bold;color:#34b233;margin-top:15px;",
+                                    "class": "hex-result-calc",
+                                    "style": "text-align:center;padding-bottom:5px;float:left;width:100%;height:22px;font-size:16px;border-bottom-color:red;border-bottom:1px solid;font-weight:bold;color:#34b233;margin-top:20px;",
                                     "data": ""
                                 },
                                 {
                                     "element": "div",
                                     "id": "hexcalc-options",
+                                    "class": "hexcalc-options",
                                     "style": "width:100%;height:100%;text-align:center;float:left;margin-top:15px;",
                                     "data": "<button class='btnCalculateHex' style='padding:1px;'> Calculate </button>"
                                 }

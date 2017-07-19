@@ -1,10 +1,10 @@
-/*
-    Class FrontEnd
-    This class is responsible for interact with ToolKit and initiate all elements for determined(clicked)
-    context. It only initiate the tool, after the initialization all actions is in the specific tool class.
-
-    _inElement: Instance of elementbuilder class;
-*/
+/**
+ * Class FrontEnd
+ * This class is responsible for interact with ToolKit and initiate all elements for determined(clicked)
+ * context. It only initiate the tool, after the initialization all actions is in the specific tool class.
+ * @class
+ * @param {ElementBuilder} _inElmBuilder 
+ */
 var FrontEnd = function(_inElmBuilder){
     this.init_(_inElmBuilder);
 }
@@ -16,6 +16,11 @@ FrontEnd.prototype = {
     _toolPool:[], //Pool of tools initialized in this tab
     _assets:null,
 
+    /**
+     * Class constructor.
+     * @constructor
+     * @param {ElementBuilder} _inElmBuilder
+     */
     init_:function(_inElmBuilder){
         //console.log("INIT::FrontEnd");
 
@@ -32,7 +37,9 @@ FrontEnd.prototype = {
         this.sendHandShake_();
     },
 
-    //Opens channel of communication with ToolKit
+    /**
+     * Opens channel of communication with ToolKit
+     */
     openChannel_:function(){
         chrome.runtime.onMessage.addListener(
             function(msg, sender, response){ 
@@ -40,7 +47,10 @@ FrontEnd.prototype = {
             }.bind(this)
         );
     },
-    //Send message to ToolKit, general use
+
+    /**
+     * Send message to ToolKit, general use
+     */
     sendMessage_:function(type, callback=null){
         chrome.runtime.sendMessage(type,
             function(resp){
@@ -50,14 +60,18 @@ FrontEnd.prototype = {
             }.bind(this)
         );
     },
-    //Message parser function to listen all messages from toolkit
+
+    /**
+     * Message parser function to listen all messages from toolkit
+     * @param {Object} msg Message object,
+     * @param {any} sender @default NULL
+     * @param {any} response @default NULL
+     */
     messageParser_:function(msg, sender=null, response=null){
         if(msg!==undefined){
             switch (msg.type) {
                 case T_OKHS:
                     this._tabId = msg.tabId;
-                    //Ready to message ToolKit
-                    this.connectionReady_();
                     break;
                 case T_ASYW:
                     if(msg.tabId==this._tabId){
@@ -65,8 +79,6 @@ FrontEnd.prototype = {
                     }
                     response({type:T_OKW});
                 case T_WAIT:
-                    //Waiting toolkit get the json elements. // Async method, then we wait for T_ASYW;
-                    //console.log("FrontEnd::getElements->Sent::T_ELM <-> Recv::T_WAIT");
                     break;
                 case T_UHIDE:
                     this._toolPool[msg.tool].ctx.unhideMe_(msg.data);
@@ -74,16 +86,23 @@ FrontEnd.prototype = {
                 case T_RASST:
                     this._assets = JSON.parse(msg.data);
                     break;
+                case T_REXEC:
+                    this._toolPool[msg.tool].ctx.setSelectedText_(msg.return);
+                    break;
+                case T_RDATA:
+                    this._toolPool[msg.tool].ctx.recData_(msg.data);
+                    break;
                 default:
-                    //console.log("FrontEnd::messageParser->[ERROR] Parsing message type.");
                     break;
             }
         } else {
-            //console.log("FrontEnd::messageParser->[ERROR] Nothing to parse.");
+            //Nothing;
         }
     },
 
-    //Estabilish communication to future conversations
+    /**
+     * Estabilish communication to future conversations;
+     */
     sendHandShake_:function(){
         this.sendMessage_({type:T_CHKHS}, 
             function(tid){
@@ -92,31 +111,33 @@ FrontEnd.prototype = {
         );
     },
 
-    //All messages and functions must be in here. After handshake.
-    connectionReady_:function(){
-        //Calls to ToolKit here//
-        //console.log('FrontEnd::ToolKit->readyState');
-
-        //Get elements from last context called
-        //this.getElements_();
-    },
-
-    //Get asset list to change after the elementbuilder work it on json;
+    /**
+     * Get asset list to change after the elementbuilder work it on json;
+     */
     getAssets_:function(){
         this.sendMessage_({type:T_GASST});
     },
 
-    //After the handshake get all elements to inject on page. The context clicked is already known in ToolKit.
-    //Since the ToolKit already know which context was clicked, it knows what elements to send.
-    getElements_:function(){
-        this.sendMessage_({type:T_ELM});
+    /**
+     * After the handshake get all elements to inject on page. The context clicked is already known in ToolKit.
+     * Since the ToolKit already know which context was clicked, it knows what elements to send.
+     * This is called on the js of each tool throught the global {ctxFront};
+     * @param {string} _inToolId Tool id to get elements
+     */
+    getElements_:function(_inToolId){
+        this.sendMessage_({type:T_ELM, toolId:_inToolId});
     },
 
-    //Parse the json to html and then inject it on page/tab.
+    /**
+     * Parse the json to html and then inject it on page/tab.
+     * @param {Object~JSON} _inElement - JSON elements of tool
+     * @param {string} _inTool - ID of tool
+     * @param {(string|any)} _inDataTool - Data of tool context
+     */
     buildElementChain_:function(_inElement, _inTool, _inDataTool){
 
         if(this._elementBuilder.parseElement_(_inElement)){
-            if(Object.keys(this._toolPool).length==0)
+            if(document.getElementById("toolkit-parent")===null)
                 document.getElementsByTagName("body")[0].innerHTML = this._elementBuilder._outerHTML + document.getElementsByTagName("body")[0].innerHTML;
             else {
                 var extractToolBlock = document.createElement("div");
@@ -128,10 +149,14 @@ FrontEnd.prototype = {
             
             this.parseAssets_();
         }
-
-        this.paserTool_(_inTool, _inDataTool);
+        //Calling the tool constructor.
+        this._toolPool[_inTool].ctx.init();
     },
 
+    /**
+     * Parse the asset loaded;
+     * If the injected html requires changes for assests this function do it;
+     */
     parseAssets_:function(){
         var assetElements = document.getElementById(ELM_TIT).getElementsByClassName("asset_load");
         if(assetElements.length>0){
@@ -150,25 +175,21 @@ FrontEnd.prototype = {
         }
     },
 
-    //Parse the tool requested and then instantiate appropriated class.
-    //At this time the tool already been called and will appear on screen.
-    //So if he tool have some data to receive from the page here is where it receive it.
-    paserTool_:function(_inTool, _inDataTool){
-        switch (_inTool) {
-            case ID_TIT:
-                this._toolPool[_inTool] = {};
-                this._toolPool[_inTool].ctx = new TranslateIt(new AjaxApi(), this._tabId);
-                this._toolPool[_inTool].ctx.setSelectedText_(_inDataTool); //Receiving data. Data comes from toolkit.js; See context event click.
-                this._toolPool[_inTool].ctx.setSendMessageTk_(this.sendMessage_);
-                break;
-            case ID_HEX:
-                this._toolPool[_inTool] = {};
-                this._toolPool[_inTool].ctx = new HexConverter();
-                this._toolPool[_inTool].ctx.setSendMessageTk_(this.sendMessage_);
-            default:
-                break;
-        }
+    /**
+     * Initializes the tool;
+     * @exports Tool Used in each class through the global ctxFront
+     * to initializes the tool;
+     */    
+    initTool_:function(_inToolId, _inToolObj){
+        this._toolPool[_inToolId] = {
+            ctx: _inToolObj
+        };
+        this._toolPool[_inToolId].ctx.setSendMessageTk_(this.sendMessage_);
     }
 };
 
+/**
+ * Gloval var of FrontEnd instance
+ * @global @instance
+ */
 var ctxFront = new FrontEnd(new ElementBuilder());

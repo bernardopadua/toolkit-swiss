@@ -1,19 +1,20 @@
 {
-    "translate_it": {
-        "element": "div",
+    "TOOL_NAME": {
+        "element": "div", /*MANDATORY*/
         "id": "toolkit-parent",
         "next": [
             {
-                "element": "div",
+                "element": "div", /*MANDATORY*/
                 "id": "tkblack-layer"
             },
             {
-                "element": "div",
+                "element": "div", /*MANDATORY*/
                 "id": "toolkit-block",
+                "class": "toolkit-block",
                 "next": [
                 {
-                    "element": "div",
-                    "id": "tkoptions",
+                    "element": "div", /*OPITIONAL*/
+                    "id": "tkoptions", 
                     "next": { 
                         "element": "ul",
                         "for": "2xli",
@@ -23,9 +24,10 @@
                     }
                 },
                 {
-                    "element": "div",
+                    "element": "div", /*MANDATORY*/
                     "id": "container-tk",
-                    "next":[
+                    "style": "height:200px;", /*Configurable*/
+                    "next":[ /*Inside the array anything is customizable*/
                         {
                             "element": "div",
                             "id": "loader-container",
@@ -40,23 +42,23 @@
                             "next": [
                                 {
                                     "element": "div",
-                                    "id": "trt-original",
-                                    "class": "tkcont-child",
+                                    "id": "some-div-one",
+                                    "class": "tkcont-child", /*See css.css tkcont-child (float)*/
                                     "data": ""
                                 },
                                 {
                                     "element": "div",
-                                    "id": "trt-translated",
-                                    "class": "tkcont-child",
+                                    "id": "some-div-two",
+                                    "class": "tkcont-child", /*See css.css tkcont-child (float)*/
                                     "data": ""
                                 }
                             ]
                         },
                         {
                             "element": "div",
-                            "id": "container-2",
+                            "id": "container-two",
                             "style": "display:none",
-                            "data": "TESTEEEEEEE1111"
+                            "data": ""
                         }
                     ]
                 }]

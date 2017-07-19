@@ -1,263 +1,153 @@
-/*
-    Class HexConverter
-    This class is responsible for all convertions of hex values.
-*/
-HexConverter = function(){
-    this.init_();
-};
+/**
+ * Class HexConverter
+ * This class is responsible for all convertions of hex values.
+ * @class
+ */
+const HexConverter = function(){
 
-HexConverter.prototype = {
-    //Id Elements
-    _ID_CONV: "hexconverter-container",
-    _ID_CALC: "hexcalc-container",
-    _ID_BLACKLAYER: "tkblack-layer",
-    _ID_HIDE_CONTAINERS: "none",
+    this._ID_CONV = "hexconverter-container";
+    this._ID_CALC = "hexcalc-container";
+    this._TAB_CONV = "hex-conv";
+    this._TAB_CALC = "hex-calc";
 
-    //Containers
-    _ctnHexConvert: null,
-    _ctnHexCalc: null,
+    this.init=function(){
+        this._tool_block_id = "toolkit-block-hex";
+        this.super(ID_HEX);
 
-    //Tabs
-    _tabConv: null,
-    _tabCalc: null,
+        const isDefault = true;
+        this.addTab_(this._TAB_CONV, isDefault);
+        this.addTab_(this._TAB_CALC);
+        this.addContainer_(this._ID_CONV);
+        this.addContainer_(this._ID_CALC);
 
-    //Main Element from Tool
-    _main: null,
-    _tool_block: null,
-    _optConv: null,
-    _optCalc: null,
-    _btnConverter: null,
-    _btnCalculate: null,
-    _iptOne: null,
-    _iptTwo: null,
-    _hexCalcResult: null,
-    _textAreaHex: null,
-    _textAreaResult: null,
-    _errorRaise: null,
-
-    //Callback function. Message to toolkit.
-    _sendMessageTk: null,
-
-    init_:function(){
-        this._main = document.getElementById(ELM_TIT);
-        this._tool_block = document.getElementById("toolkit-block-hex");
-
-        var containers = this._main.children["toolkit-block-hex"].children["container-tk"];
-
-        this._ctnHexConvert  = containers.children[this._ID_CONV];
-        this._ctnHexCalc = containers.children[this._ID_CALC];
-        this._ctnBlacklayer = this._main.children[this._ID_BLACKLAYER];
-
-        this._tabConv = this._main.getElementsByClassName("hex-conv")[0];
-        this._tabCalc = this._main.getElementsByClassName("hex-calc")[0];
-
-        this._errorRaise = this._ctnHexConvert.getElementsByClassName('error-raise')[0];
-
-        this._optConv = this._ctnHexConvert.getElementsByClassName("opt-conv")[0];
-        this._optCalc = this._ctnHexCalc.getElementsByClassName("opt-calc")[0];
-        
-        this._iptOne = this._ctnHexCalc.getElementsByClassName("h-one")[0];
-        this._iptTwo = this._ctnHexCalc.getElementsByClassName("h-two")[0];
-
-        this._hexCalcResult = document.getElementById("hex-result-calc");
-
-        this._textAreaHex = this._ctnHexConvert.getElementsByClassName("hexstring")[0];
-        this._textAreaResult = this._ctnHexConvert.getElementsByClassName("hexresult")[0];
-
-        this._btnConverter = this._main.getElementsByClassName("btnConverter")[0];
-        this._btnCalculate = this._main.getElementsByClassName("btnCalculateHex")[0];
-
-        this.removeSelected_();
-        
-        this._tabConv.className = "selected"; //Default
-
-        this.setEvents_();
+        this.setComponentEvent_("btnConverter", "click", this.btnConverterClick);
+        this.setComponentEvent_("btnCalculateHex", "click", this.btnCalculaClick);
         this.showTool_();
-    },
-    setEvents_:function(){
-        //Events for tabs
-        this._tabConv.addEventListener("click", this.tabClick_.bind(this));
-        this._tabCalc.addEventListener("click", this.tabClick_.bind(this));
+    }
 
-        //Events for buttons
-        this._btnConverter.addEventListener("click", this.btnConverterClick_.bind(this));
-        this._btnCalculate.addEventListener("click", this.btnCalculateClick_.bind(this));
-
-        //Events for tool
-        this._ctnBlacklayer.addEventListener("click", this.blackLayerClick_.bind(this));
-    },
-
-    //Unhide the tool
-    unhideMe_:function(){
-        this._tabConv.click();
-        this.showTool_();
-    },
-
-    //All tools are hide for default
-    showTool_:function(){
-        this._main.style.display = "block";
-        this._tool_block.style.display = "block";
-    },
-
-    //Set the communication directly to ToolKit. Function from FrontEnd;
-    setSendMessageTk_:function(_inRefFunc){
-        this._sendMessageTk = _inRefFunc;
-    },
-    errorRaise_:function(_inShow, _inMsg=null){
-
-        this._errorRaise.innerHTML = (_inMsg!==null ? _inMsg : "");
-
-        if (_inShow) {
-            this._errorRaise.style.display = "";
-        } else {
-            this._errorRaise.style.display = "none";
-        }
-    },
-
-    //Events
-
-    //Button calculator
-    btnCalculateClick_:function(){
-        var optToCalc = this._optCalc.selectedIndex;
+    this.btnConverterClick=function(e){
+        const optConv = this.getComponent_("opt-conv");
+        const optToConv = optConv.selectedIndex;
         
-        var pihex = function(_inValue){
-            return parseInt(_inValue, 16);
+        const txtAreaResult = this.getComponent_("hexresult");
+        const txtAreaHex = this.getComponent_("hexstring");
+
+        const checkHex = function(_inHex){
+            if((_inHex.value.length%2)==0){
+                this.errorRaise_(false);
+                return true;
+            }
+
+            this.errorRaise_(true, "Hex inválido!");
+            return false;
+        }.bind(this);
+
+        const convertHexToDecimal=function(_inHex){
+            var result = "";
+            for (var i = 0; i<_inHex.length; i+=2) {
+                var hex = _inHex.substr(i, 2);
+                result += parseInt(hex, 16).toString();
+            }
+
+            return result;
         };
 
-        var phex = function(_inValue){
-            return _inValue.toString(16).toUpperCase();
+        const convertDecimalToHex=function(_inDec){
+            var decimals = _inDec.split(" ");
+            var hex = "";
+            decimals.forEach(function(dec) {
+                hex += parseInt(dec, 10).toString(16).toUpperCase();
+            }, this);
+
+            return hex;
         };
 
-        switch (this._optCalc.options[optToCalc].value) {
-            case "add":
-                this._hexCalcResult.innerHTML = phex(pihex(this._iptOne.value) + pihex(this._iptTwo.value));
-                break;
-            case "sub":
-                this._hexCalcResult.innerHTML = phex(pihex(this._iptOne.value) - pihex(this._iptTwo.value));
-                break;
-            case "mul":
-                this._hexCalcResult.innerHTML = phex(pihex(this._iptOne.value) * pihex(this._iptTwo.value));
-                break;
-            case "div":
-                this._hexCalcResult.innerHTML = phex(pihex(this._iptOne.value) / pihex(this._iptTwo.value));
-                break;
-            case "xor":
-                this._hexCalcResult.innerHTML = phex(pihex(this._iptOne.value) ^ pihex(this._iptTwo.value));
-                break;
-            default:
-                break;
-        }
-    },
+        const converStringToHex=function(_inString){
+            var hex = "";
+            for (var i = 0; i < _inString.length; i++) {
+                hex += _inString.charCodeAt(i).toString(16).toUpperCase();
+            }
 
-    //Button event for tab of converting hex.
-    btnConverterClick_:function(e){
-        var optToConv = this._optConv.selectedIndex;
-        switch (this._optConv.options[optToConv].value) {
+            return hex;
+        };
+
+        const convertHexToString=function(_inHex){
+            var result = "";
+            for (var i = 0; i<_inHex.length; i+=2) {
+                var hex = _inHex.substr(i, 2);
+                result += String.fromCharCode(parseInt(hex, 16));
+            }
+
+            return result;
+        };
+
+        switch (optConv.options[optToConv].value) {
             case "dec":
-                if(this._textAreaResult.value.length>0 && this._textAreaHex.value.length==0){
-                    this._textAreaHex.value = this.convertDecimalToHex_(this._textAreaResult.value);
+                if(txtAreaResult.value.length>0 && txtAreaHex.value.length==0){
+                    txtAreaHex.value = convertDecimalToHex(txtAreaResult.value);
                 } else {
-                    if(this.checkHex_(this._textAreaHex))
-                        this._textAreaResult.value = this.convertHexToDecimal_(this._textAreaHex.value);
+                    if(checkHex(txtAreaHex))
+                        txtAreaResult.value = convertHexToDecimal(txtAreaHex.value);
                 }
                 break;
             case "string":
-                if(this._textAreaResult.value.length>0 && this._textAreaHex.value.length==0){
-                    this._textAreaHex.value = this.converStringToHex_(this._textAreaResult.value);
+                if(txtAreaResult.value.length>0 && txtAreaHex.value.length==0){
+                    txtAreaHex.value = converStringToHex(txtAreaResult.value);
                 } else {
-                    if(this.checkHex_(this._textAreaHex))
-                        this._textAreaResult.value = this.convertHexToString_(this._textAreaHex.value);
+                    if(checkHex(txtAreaHex))
+                        txtAreaResult.value = convertHexToString(txtAreaHex.value);
                 }
                 break;
             default:
                 break;
         }
-    },
-    //Check if it's a valid hex
-    checkHex_:function(_inHex){
-        if((_inHex.value.length%2)==0){
-            this.errorRaise_(false);
-            return true;
-        }
+    };
 
-        this.errorRaise_(true, "Hex inválido!");
-        return false;
-    },
-    convertHexToString_:function(_inHex){
-        var result = "";
-        for (var i = 0; i<_inHex.length; i+=2) {
-            var hex = _inHex.substr(i, 2);
-            result += String.fromCharCode(parseInt(hex, 16));
-        }
-
-        return result;
-    },
-    convertHexToDecimal_:function(_inHex){
-        var result = "";
-        for (var i = 0; i<_inHex.length; i+=2) {
-            var hex = _inHex.substr(i, 2);
-            result += parseInt(hex, 16).toString();
-        }
-
-        return result;
-    },
-    convertDecimalToHex_:function(_inDec){
-        var decimals = _inDec.split(" ");
-        var hex = "";
-        decimals.forEach(function(dec) {
-            hex += parseInt(dec, 10).toString(16).toUpperCase();
-        }, this);
-
-        return hex;
-    },
-    converStringToHex_:function(_inString){
-        var hex = "";
-        for (var i = 0; i < _inString.length; i++) {
-            hex += _inString.charCodeAt(i).toString(16);
-        }
-
-        return hex;
-    },
-
-    //Handle tab clicking
-    tabClick_:function(evt){
-        var elm = evt.target;
+    this.btnCalculaClick=function(){
+        const optCalc = this.getComponent_("opt-calc");
+        const optToCalc = optCalc.selectedIndex;
         
-        this.removeSelected_();
-        this.showContainer_(elm.getAttribute("container"));
-        elm.className = "selected";
-    },
-    //Blacklayer click to close the tool
-    blackLayerClick_:function(){
-        this._main.style.display = "none";
-        this._tool_block.style.display = "none";
-        this._sendMessageTk({type:T_HIDE, tool:ID_HEX});
-    },
+        const hexCalcResult = this.getComponent_("hex-result-calc");
 
-    //Reset all tabs from "selected" class
-    removeSelected_:function(){
-        this._tabCalc.className = "";
-        this._tabConv.className = "";
-    },
-    //Handle which tab show according with tab click
-    showContainer_:function(_inContainer){
-        this._ctnHexConvert.style.display = "none";
-        this._ctnHexCalc.style.display = "none";
+        const iptOne = this.getComponent_("h-one");
+        const iptTwo = this.getComponent_("h-two");
 
-        switch (_inContainer) {
-            case this._ID_CONV:
-                this._ctnHexConvert.style.display = "";
+        const pihex = function(_inValue){
+            return parseInt(_inValue, 16);
+        };
+
+        const phex = function(_inValue){
+            return _inValue.toString(16).toUpperCase();
+        };
+
+        switch (optCalc.options[optToCalc].value) {
+            case "add":
+                hexCalcResult.innerHTML = phex(pihex(iptOne.value) + pihex(iptTwo.value));
                 break;
-            case this._ID_CALC:
-                this._ctnHexCalc.style.display = "";
+            case "sub":
+                hexCalcResult.innerHTML = phex(pihex(iptOne.value) - pihex(iptTwo.value));
+                break;
+            case "mul":
+                hexCalcResult.innerHTML = phex(pihex(iptOne.value) * pihex(iptTwo.value));
+                break;
+            case "div":
+                hexCalcResult.innerHTML = phex(pihex(iptOne.value) / pihex(iptTwo.value));
+                break;
+            case "xor":
+                hexCalcResult.innerHTML = phex(pihex(iptOne.value) ^ pihex(iptTwo.value));
                 break;
             default:
                 break;
         }
-    },    
+    };
 
 };
+HexConverter.prototype = Object.create(Tool.prototype);
 
-//Calling the elements of tool
-// ctxFront: instance FrontEnd Class;
-ctxFront.getElements_();
+/**
+ * Starting tool and calling elements;
+ * The init call is on FrontEnd;
+ * @instance FrontEnd Class
+ */
+ctxFront.initTool_(ID_HEX, new HexConverter());
+ctxFront.getElements_(ID_HEX);
