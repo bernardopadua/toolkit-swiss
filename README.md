@@ -16,7 +16,7 @@ You can see on the tools available to see how code new tools. I documented the T
 
 I posted some overview of the ToolKit Swiss and hot to implement a new tool on my blog:
 
-* bloglink
+* https://verseinversing.blogspot.com.br/2017/07/toolkit-swiss-chrome-extension.html
 
 Any idea, bug, question just send it to me, I will be glad helping.
 
