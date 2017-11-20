@@ -9,7 +9,7 @@ var AjaxApi = function(){
     this._callbackFunc=null;
 
     this.init_=function(){
-        console.log("INIT::Ajax");
+        console.log("Ajax::init_");
         
         this._httpReq = new XMLHttpRequest();
         this._httpReq.onreadystatechange = function(){
@@ -45,7 +45,7 @@ var AjaxApi = function(){
         window.document.__defineGetter__('referrer', function () {
             return "https://github.com";
         });
-        //Object.defineProperty(document, "referrer", {get : function(){ return "no-referrer-when-downgrade"; }});
+        Object.defineProperty(document, "referrer", {get : function(){ return "no-referrer-when-downgrade"; }});
         this._httpReq.send();
     };
 

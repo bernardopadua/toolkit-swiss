@@ -5,38 +5,59 @@
     height: 100%;
     padding: 0;
     margin: 0;
-    display: none;
+    visibility: hidden;
     z-index: 9;
 }
 
 #tkblack-layer {
     position: fixed;
-    z-index: 99;
+    z-index: 10;
     width: 100%;
     height: 100%;
     display: block;
     background-color: black;
     color: white;
     opacity: 0.8;
-    /*filter: alpha(opacity=70);*/
 }
 
 #toolkit-parent .toolkit-block {
-    position: fixed;
-    z-index: 999;
+    position: absolute;
+    z-index: 10;
     margin: 0;
     padding: 4px;
-    top: 30%;
-    left: 37%;
     width: 500px;
-    max-height: 500px;
     border: 3px gray solid;
     background-color: white;
     color: black;
     font-family: 'Roboto', Arial;
     font-size: 12px !important;
     border-radius: 10px;
+    visibility: hidden;
+    overflow: hidden;
+}
+
+#toolkit-parent #window-head {
+    width: 100%;
+    height: 25px;
+    padding-left: 5px;
+    margin-bottom: 2px;
+    font-weight: bold;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 16px;
+    background-color: #f6f8fa;
+    user-select: none;
+}
+
+#toolkit-parent #window-head .wbuttons-float {
+    float: right;
+    height: 100%;
+    padding: 2px;
     display: none;
+}
+
+#toolkit-parent #window-head .button-head {
+    width: 16px;
+    height: 16px;
 }
 
 #toolkit-parent .error-raise {
@@ -49,21 +70,26 @@
     display: none;
 }
 
-#tkoptions {
+#toolkit-parent .error-raise.visible {
+    display: block;
+}
+
+#toolkit-parent #window-options {
     width: 100%;
     text-decoration: none;
     background-color: whitesmoke;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    user-select: none;
 }
 
-#tkoptions ul {
+#toolkit-parent #window-options ul {
     margin: 0;
     padding: 0;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
 }
 
-#tkoptions ul li {
+#toolkit-parent #window-options ul li {
     width: 100px;
     display: inline-block;
     padding: 5px;
@@ -73,23 +99,23 @@
     cursor: pointer;
 }
 
-#tkoptions ul li.selected {
+#toolkit-parent #window-options ul li.selected {
     background-color: black;
     font-weight: bold;
     border-top: 1px gray solid;
     color: white;
 }
 
-#tkoptions ul li:not(:first-child) {
+#toolkit-parent #window-options ul li:not(:first-child) {
     margin-left: 4px;
 }
 
-#container-tk {
+#toolkit-parent #window-content {
     width:100%;
     position:relative;
 }
 
-#container-tk button {
+#toolkit-parent #window-content button {
     width:85% !important;
     padding:5px !important;
     border-top: none !important;
@@ -103,32 +129,18 @@
     font-weight: bold !important;
 }
 
-#container-tk .tkcont-child {
-    float: left;
+#toolkit-parent #window-content .tkcont-child {
+    display: inline-block;
     height: 100%;
     width: 50%;
-    padding: 5px;
-    overflow: hidden;
-    box-sizing: border-box;
+    padding: 2px;
 }
 
-#container-tk .tkcont-child:nth-child(even) {
-    padding: 5px;
-    font-size: 14px;
-    background-color: #f2f2f2;
-}
-
-#container-tk .tkcont-child:nth-child(odd) {
-    padding: 5px;
-    font-size: 14px;
-    background-color: #d8d8d8;
-}
-
-#container-tk .noback {
+#toolkit-parent #window-content .noback {
     background-color: transparent !important;
 }
 
-#container-tk .title {
+#toolkit-parent #window-content .title {
     width: 100%;
     box-sizing: border-box;
     font-weight: bold;
@@ -138,7 +150,7 @@
     padding: 10px;
 }
 
-#slang-container .meaning {
+#toolkit-parent #window-content #slang-container .meaning {
     width: 100%;
     background-color: #d8d8d8;
     padding: 5px;
@@ -146,14 +158,14 @@
 }
 
 
-#definition-container .meaning {
+#toolkit-parent #window-content #definition-container .meaning {
     width: 100%;
     background-color: #d8d8d8;
     padding: 5px;
     box-sizing: border-box;
 }
 
-#hexconverter-container {
+#toolkit-parent #window-content #hexconverter-container {
     width: 100%;
     height: 100%;
     padding:0px;
@@ -162,11 +174,11 @@
     background-color: #f2f2f2;
 }
 
-#hexcalc-data input {
+#toolkit-parent #window-content #hexcalc-data input {
     width:40%;
 }
 
-#hexcalc-data input, select {
+#toolkit-parent #window-content #hexcalc-data input, select {
     height:22px !important;
     font-size:16px !important;
     font-weight: bold !important;
@@ -175,4 +187,8 @@
     border-top:none;
     border-left: none;
     border-right: none;
+}
+
+#toolkit-parent #window-footer {
+    display: block;
 }

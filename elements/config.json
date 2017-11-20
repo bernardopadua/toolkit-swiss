@@ -1,0 +1,43 @@
+{
+    "tkswiss":{
+        "tools":[
+            "tkswiss",
+            "translateit",
+            "hexconverter",
+            "codehighlight",
+            "base64encodedecode"
+        ],
+        "specs":{
+            "tkswiss":{
+                "id": "toolkit-swiss",
+                "type": "page",
+                "title": "ToolKit Swiss",
+                "root": null
+            },
+            "translateit":{
+                "id": "translateit",
+                "type": "selection",
+                "title": "TranslateIt",
+                "root": null
+            },
+            "hexconverter":{
+                "id": "hexconverter",
+                "type": "page",
+                "title": "HexConverter",
+                "root": "toolkit-swiss"
+            },
+            "codehighlight":{
+                "id": "codehighlight",
+                "type": "page",
+                "title": "Code Highlighter",
+                "root": "toolkit-swiss"
+            },
+            "base64encodedecode":{
+                "id": "base64encodedecode",
+                "type": "page",
+                "title": "Base64 Encode-Decode",
+                "root": "toolkit-swiss"
+            }
+        }
+    }
+}

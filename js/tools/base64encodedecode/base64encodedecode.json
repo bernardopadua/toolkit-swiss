@@ -1,0 +1,52 @@
+{
+    "base64encodedecode":{
+        "window": {
+            "id": "toolkit-block-base64",
+            "class": "toolkit-block",
+            "style": ""
+        },
+        "window-head": {
+            "title": "Base64(De/En)code - ToolkitSwiss"
+            ,"style": ""
+            ,"class": ""
+        },
+        "window-content":{
+            "contents":["base64encodedecode-ct"],
+            "data-contents":{
+                "base64encodedecode-ct":{
+                    "class": "noback",
+                    "style": "width:100%;height:100%;padding:0px;box-sizing:border-box;text-align:center;",
+                    "html":[
+                        "<div id='title-tool' class='title'>",
+                        "  Base64 Encode-Decode",
+                        "</div>",
+
+                        "<div id='data-elements' class='tkcont-child noback'>",
+                        "  <div class='title' style='font-size:12px !important;height:20px !important;padding:0px !important;margin:0px !important;'>",
+                        "    Text to Encode",
+                        "  </div>",
+                        "  <textarea style='width:100%;height:150px;font-size:12px;' class='texttoencode'></textarea>",
+                        "</div>",
+
+                        "<div id='data-elements' class='tkcont-child noback'>",
+                        "  <div class='title' style='font-size:12px !important;height:20px !important;padding:0px !important;margin:0px !important;'>",
+                        "    Encoded",
+                        "  </div>",
+                        "  <textarea style='width:100%;height:150px;font-size:12px;' class='textencoded'></textarea>",
+                        "</div>",
+
+                        "<div id='cdh-options' style='float:left;text-align:center;width:100%;'>",
+                        "  <div class='error-raise' style='display:none;width:100%;height:20px;'></div>",
+                        "  <br/>",
+                        "  <button class='btnEncodeDecode' style='padding:1px;'>Encode-Decode!</button>",
+                        "</div>"
+                    ]
+                }
+            }
+        },
+        "window-footer":{
+            "style": "visibility:hidden;",
+            "footer": ""
+        }
+    }    
+}

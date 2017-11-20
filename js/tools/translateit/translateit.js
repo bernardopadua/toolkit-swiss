@@ -8,7 +8,8 @@
     //http://www.urbandictionary.com/define.php?term=Computer
 
 */
-const TranslateIt = function(_inAjaxAPI){
+let TranslateIt = function(_inAjaxAPI){
+    this.tId     = "translateit"; //Tool ID
     this.ajaxApi = _inAjaxAPI; //hold the ajax api handle
 
     this._ID_TRANSLATE  = "translate-container";
@@ -25,16 +26,15 @@ const TranslateIt = function(_inAjaxAPI){
     this.isNewText      = false;
 
     this.init=function(){
-        this._tool_block_id = "toolkit-block-trt";
-        this.super(ID_TIT);
+        this.super(this.tId, "toolkit-block-trt", this._extensionURL);
 
         const isDefault = true;
         this.addTab_(this._TAB_TRT, isDefault);
         this.setTabEvent_(this._TAB_TRT, "afterclick", this.getTranslate);
-        
+
         this.addTab_(this._TAB_DEF);
         this.setTabEvent_(this._TAB_DEF, "afterclick", this.getDefinition);
-        
+
         this.addTab_(this._TAB_SLANG);
         this.setTabEvent_(this._TAB_SLANG, "afterclick", this.getSlang);
 
@@ -45,18 +45,20 @@ const TranslateIt = function(_inAjaxAPI){
 
         this.setEvent_("onunhide", this.onUnhide);
 
-        this.showTool_();
+        this.setWindowDnD_(); //Drag n Drop
+        this.setWindowResizable_();
+        this.showTool_("center");
 
         /**
          * @default _recData Property from Tool class [Callback({string})]. 
          * Use it when need to get data from ToolKit;
          */
         this._recData = this.setSelectedText;
-        this._sendMessageTk({type:T_GDATA, tool:ID_TIT});
+        this._sendMessageTk({type:this._types["T_GDATA"], tool:this.tId});
     };
 
     this.onUnhide=function(){
-        this._sendMessageTk({type:T_GDATA, tool:ID_TIT});
+        this._sendMessageTk({type:this._types["T_GDATA"], tool:this.tId});
     };
 
     this.setSelectedText=function(_inText){
@@ -75,15 +77,19 @@ const TranslateIt = function(_inAjaxAPI){
             this.showContainer_(this._ID_TRANSLATE);
             return;
         }
-        
+        this.showContainer_(this._ID_LOADER);
+
         const setTranslateToElement=function(_inTxtTrt){
             const translatedText = eval(_inTxtTrt)[0][0][0];
             const originalText   = eval(_inTxtTrt)[0][0][1];
 
             const translateCtn   = this.getContainer_(this._ID_TRANSLATE);
 
-            const originalElm    = translateCtn.ctnLink.children["trt-original"];
-            const translatedElm  = translateCtn.ctnLink.children["trt-translated"];
+            /*const originalElm    = translateCtn.ctnLink.children["trt-original"];
+            const translatedElm  = translateCtn.ctnLink.children["trt-translated"];*/
+
+            const originalElm   = this.getComponent_("trt-original");
+            const translatedElm = this.getComponent_("trt-translated");
 
             originalElm.innerHTML   = originalText;
             translatedElm.innerHTML = translatedText;
@@ -104,6 +110,7 @@ const TranslateIt = function(_inAjaxAPI){
             this.showContainer_(this._ID_SLANG);
             return;
         }
+        this.showContainer_(this._ID_LOADER);
 
         const url = "https://www.urbandictionary.com/define.php?term="+encodeURI(this.selectedText);
 
@@ -163,7 +170,8 @@ const TranslateIt = function(_inAjaxAPI){
             this.showContainer_(this._ID_DEFINITION);
             return;
         }
-        
+        this.showContainer_(this._ID_LOADER);
+
         const url = "https://od-api.oxforddictionaries.com:443/api/v1/entries/en/"+encodeURI(this.selectedText).trim();
 
         const setDefinitionToElement=function(_inDefJson){
@@ -201,20 +209,22 @@ const TranslateIt = function(_inAjaxAPI){
         */
         this.ajaxApi.setParamHeader_({
             Accept: "application/json",
-            app_id: "",
-            app_key: ""
+            app_id: "f6458482",
+            app_key: "45a546204b9332f4e6fded1664ab8805"
         });
 
         this.ajaxApi.sendReq_();
     };
 
 };
-TranslateIt.prototype = Object.create(Tool.prototype);
+TranslateIt.prototype = Tool.prototype;
+TranslateIt.prototype.constructor = TranslateIt;
 
 /**
  * Starting tool and calling elements;
  * The init call is on FrontEnd;
  * @instance FrontEnd Class
  */
-ctxFront.initTool_(ID_TIT, new TranslateIt(new AjaxApi()));
-ctxFront.getElements_(ID_TIT);
+const trtObj = new TranslateIt(new AjaxApi());
+ctxFront.initTool_(trtObj.tId, trtObj);
+ctxFront.getElements_(trtObj.tId);

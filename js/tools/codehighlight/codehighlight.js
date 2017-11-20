@@ -24,16 +24,17 @@ const CodeHighlight = function(){
         }
     };
 
+    this.tId          = "codehighlight"; //Tool Id
+
     this._ID_HLIGHTER = "highlighter-ct";
     
     this.init=function(){
-        this._tool_block_id = "toolkit-block-cdht";
-        this.super(ID_COD);
+        this.super(this.tId, "toolkit-block-cdht", this._extensionURL);
 
         this.addContainer_(this._ID_HLIGHTER);
         this.setComponentEvent_("btnHighlight", "click", this.btnHighlightEvt);
 
-        this.showTool_();
+        this.showTool_("center");
     };
 
     this.btnHighlightEvt=function(){
@@ -146,12 +147,14 @@ const CodeHighlight = function(){
     }.bind(this);
 
 };
-CodeHighlight.prototype = Object.create(Tool.prototype);
+CodeHighlight.prototype = Tool.prototype;
+CodeHighlight.prototype.constructor = CodeHighlight;
 
 /**
  * Starting tool and calling elements;
  * The init call is on FrontEnd;
  * @instance FrontEnd Class
  */
-ctxFront.initTool_(ID_COD, new CodeHighlight());
-ctxFront.getElements_(ID_COD);
+const codeObj = new CodeHighlight();
+ctxFront.initTool_(codeObj.tId, codeObj);
+ctxFront.getElements_(codeObj.tId);

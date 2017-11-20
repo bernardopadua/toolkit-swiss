@@ -1,0 +1,72 @@
+{
+    "translateit":{
+        "window": {
+            "id": "toolkit-block-trt",
+            "class": "toolkit-block",
+            "style": "",
+            
+            "asset-list": [
+                ["loader", "assets/loader.gif"]
+            ]
+        },
+        "window-head": {
+            "title": "TranslateIT - ToolkitSwiss"
+            ,"style": ""
+            ,"class": ""
+            ,"buttons": true
+        },
+        "window-options":{
+            "options": ["tit-trt", "tit-def", "tit-slang"],
+            "options-title": ["Translate", "Definition", "Slang"]
+        },
+        "window-content":{
+            "contents":["loader-container", "translate-container", "definition-container", "slang-container"],
+            "data-contents":{
+                "loader-container":{
+                    "assets": true,
+                    "style": "width:100%;height:100%;float:left;background-color:white;text-align:center;",
+                    "html":[
+                        "<img src='{loader}' class='asset_load' />"
+                    ]
+                },
+                "translate-container": {
+                    "style": "",
+                    "html": [
+                        "<style>",
+                            "#toolkit-parent #trt-original { padding: 4px; background-color: #fcfbfb; }",
+                            "#toolkit-parent #trt-translated { padding: 4px; }",
+                        "</style>",
+                        "",
+                        "<ul style='font-size:14px;'>",
+                            "<li class='tkcont-child'>",
+                                "<div id='trt-original' class='trt-original'></div>",
+                            "</li>",
+                            "<li class='tkcont-child'>",
+                                "<div id='trt-translated' class='trt-translated'></div>",
+                            "</li>",
+                        "</ul>"
+                    ]
+                },
+                "definition-container": {
+                    "style": "",
+                    "html": [
+                        "Hello, definition"
+                    ]
+                },
+                "slang-container": {
+                    "style": "",
+                    "html": [
+                        "Hello, container"
+                    ]
+                }
+            }
+            ,"dynamic-content":{
+
+            }
+        },
+        "window-footer":{
+            "style": "visibility:hidden;",
+            "footer": ""
+        }
+    }    
+}

@@ -5,14 +5,15 @@
  */
 const HexConverter = function(){
 
-    this._ID_CONV = "hexconverter-container";
-    this._ID_CALC = "hexcalc-container";
-    this._TAB_CONV = "hex-conv";
-    this._TAB_CALC = "hex-calc";
+    this.tId        = "hexconverter"; //Tool Id
+
+    this._ID_CONV   = "hexconverter-container";
+    this._ID_CALC   = "hexcalc-container";
+    this._TAB_CONV  = "hex-conv";
+    this._TAB_CALC  = "hex-calc";
 
     this.init=function(){
-        this._tool_block_id = "toolkit-block-hex";
-        this.super(ID_HEX);
+        this.super(this.tId, "toolkit-block-hex", this._extensionURL);
 
         const isDefault = true;
         this.addTab_(this._TAB_CONV, isDefault);
@@ -22,8 +23,11 @@ const HexConverter = function(){
 
         this.setComponentEvent_("btnConverter", "click", this.btnConverterClick);
         this.setComponentEvent_("btnCalculateHex", "click", this.btnCalculaClick);
-        this.showTool_();
-    }
+        this.showTool_("center");
+
+        this.setWindowDnD_();
+        this.setWindowResizable_();
+    };
 
     this.btnConverterClick=function(e){
         const optConv = this.getComponent_("opt-conv");
@@ -142,12 +146,14 @@ const HexConverter = function(){
     };
 
 };
-HexConverter.prototype = Object.create(Tool.prototype);
+HexConverter.prototype = Tool.prototype;
+HexConverter.prototype.constructor = HexConverter;
 
 /**
  * Starting tool and calling elements;
  * The init call is on FrontEnd;
  * @instance FrontEnd Class
  */
-ctxFront.initTool_(ID_HEX, new HexConverter());
-ctxFront.getElements_(ID_HEX);
+const hexObj = new HexConverter();
+ctxFront.initTool_(hexObj.tId, hexObj);
+ctxFront.getElements_(hexObj.tId);

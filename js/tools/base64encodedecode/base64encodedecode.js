@@ -5,20 +5,20 @@
  */
 const Base64EncodeDecode = function(){
 
+    this.tId        = "base64encodedecode"; //Tool Id
+
     //To make easy to call it.
     this._ID_BASE64 = "base64encodedecode-ct";
 
     this.init=function(){
-        //Need to setup this property because it change from tool to tool.
-        //Since the ToolKit Swiss permits more than one tool per page and need to control it.
-        this._tool_block_id = "toolkit-block-base64";
-        this.super(ID_B64); //Mandatory to call this function;
+        //Setuping the tool prototype.
+        this.super(this.tId, "toolkit-block-base64", this._extensionURL); //Mandatory to call this function;
 
         this.addContainer_(this._ID_BASE64); //Adding a container internal needs.
 
         this.setComponentEvent_("btnEncodeDecode", "click", this.btnEncodeDecode); //It uses the event addEventListener internally;
 
-        this.showTool_(); //Show tool on the screen;
+        this.showTool_("center"); //Show tool on the screen;
     };
 
     this.btnEncodeDecode=function(){
@@ -40,12 +40,14 @@ const Base64EncodeDecode = function(){
     };
 
 };
-Base64EncodeDecode.prototype = Object.create(Tool.prototype);
+Base64EncodeDecode.prototype = Tool.prototype;
+Base64EncodeDecode.prototype.constructor = Base64EncodeDecode;
 
 /**
  * Starting tool and calling elements;
  * The init call is on FrontEnd;
  * @instance FrontEnd Class
  */
-ctxFront.initTool_(ID_B64, new Base64EncodeDecode());
-ctxFront.getElements_(ID_B64);
+const base64Obj = new Base64EncodeDecode();
+ctxFront.initTool_(base64Obj.tId, base64Obj);
+ctxFront.getElements_(base64Obj.tId);

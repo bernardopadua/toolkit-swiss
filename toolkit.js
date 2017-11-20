@@ -40,10 +40,9 @@ ToolKit.prototype = {
 
     _tabPool:[], //Pool of tabs opened
     _netStorage:null, //Handle for NetStorage~
-    _blabla:null,
-    _assets:{},
-
-    _lastIdElements:null, //Id from last tool requested (Used for get the right elements)
+    _extensionURL:null,
+    _types:null, //Types
+    _toolsSpecs:[], //Loaded tools specifications
 
     /**
      * Class constructor;
@@ -54,8 +53,11 @@ ToolKit.prototype = {
         //Get class NetStorage (Responsible for get elements .json)
         this._netStorage = netstorage;
         
-        //Loading assets
-        this.loadAssets_();
+        //Initializing Types
+        this._types = new TkTypes();
+
+        //Setting the extension URL
+        this.setExtensionURL_();
 
         //Open channel
         this.openChannel_();
@@ -63,28 +65,59 @@ ToolKit.prototype = {
         //Tab events. F5 or Closing.
         this.setTabEvents_();
 
-        //Creating contexts
-        this.toolContextCreate_();
+        //Loading tools specifications
+        this.loadToolsSpec_();
     },
 
     /**
-     * Context menus created;
+     * Loading the config file for toolkit.
+     * All items of menu context should be there.
+     */
+    loadToolsSpec_:function(){
+        this._netStorage.setCallback_(this.finishInit_.bind(this));
+        this._netStorage.getFromUrl_(
+            this._extensionURL+"elements/config.json",
+            "GET"
+        );
+    },
+
+    /**
+     * Finishing initialization of ToolKit.
+     * Needed two functions since the config.json loading is asynchronous.
+     */
+    finishInit_:function(){
+        if(this._netStorage._ctx.readyState==4){
+            const specs = JSON.parse(this._netStorage._ctx.responseText);
+            
+            specs["tkswiss"]["tools"].forEach(tool => {
+                if(specs["tkswiss"]["specs"][tool]===undefined){
+                    console.log("ToolkitSwiss::Error Loading Tools [config.json]");
+                    return;
+                }
+                
+                const tspec = specs["tkswiss"]["specs"];
+                this._toolsSpecs.push([tspec[tool].id, tspec[tool].type, tspec[tool].title, tspec[tool].root]);
+            });
+
+            //Creating contexts
+            this.toolContextCreate_();
+        }
+    },
+
+    setExtensionURL_:function(){
+        this._extensionURL = chrome.runtime.getURL("");
+    },
+
+    /**
+     * Menu context creation function
      */
     toolContextCreate_:function(){
-        //TranslateIt
-        this.createContextM_(ID_TIT, T_SEL, "TranslateIt", this.translateEvt_);
+        this._toolsSpecs.forEach(element => {
+            this.createContextM_(element[0], element[1], element[2], element[3]);
+        });
 
-        //ToolKitSwiss Parent Context
-        this.createContextM_(ID_TKS, T_PAGE, "ToolKit Swiss", null);
-
-        //Hex converter
-        this.createContextM_(ID_HEX, T_PAGE, "HexConverter", this.hexConverterEvt_, ID_TKS);
-
-        //Code highlighter
-        this.createContextM_(ID_COD, T_PAGE, "Code Highlighter", this.codeHighlightEvt_, ID_TKS);
-
-        //Base 64 Encode-Decode
-        this.createContextM_(ID_B64, T_PAGE, "Base64 Encode-Decode", this.base64EncodeDecodeEvt_, ID_TKS);
+        //Listener to open all contextMenus
+        chrome.contextMenus.onClicked.addListener(this.contexteEventListener_.bind(this));
     },
 
     /**
@@ -141,57 +174,39 @@ ToolKit.prototype = {
      * @param @callback respCallback Function callback.
      */
     messageParser_:function(message, sender=null, respCallback=null){
+        const t = this._types;
+        
         switch (message.type) {
-            case T_OKW:
+            case t["T_OKW"]:
                 //console.log("OKWait");
                 break;
-            case T_CHKHS: /*HandShake from tab tool*/
-                respCallback({type:T_OKHS, tabId:sender.tab.id});
+            case t["T_CHKHS"]: /*HandShake from tab tool*/
+                respCallback({type:t["T_OKHS"], tabId:sender.tab.id, extensionURL:this._extensionURL});
                 break;
-            case T_ELM: /*Tab asking for tool elements to inject*/
-                this.getElmFromStorage_(sender.tab.id, message.toolId);
-                respCallback({type:T_WAIT});
+            case t["T_ELM"]: /*Tab asking for tool elements to inject*/
+                this.getElmFromStorage_(sender.tab.id, message.file);
+                respCallback({type:t["T_WAIT"]});
                 break;
-            case T_GASST:
-                respCallback({type:T_RASST, data:JSON.stringify(this._assets)});
+            case t["T_GASST"]:
+                //respCallback({type:T_RASST, data:JSON.stringify(this._assets)});
                 break;
-            case T_GDATA:
-                this.sendMessage_({type:T_RDATA, tool:message.tool, data:this._tabPool[sender.tab.id].tools[message.tool].data}, sender.tab.id);
+            case t["T_GDATA"]:
+                this.sendMessage_({type:t["T_RDATA"], tool:message.tool, data:this._tabPool[sender.tab.id].tools[message.tool].data}, sender.tab.id);
                 break;
-            case T_EXEC:
+            case t["T_EXEC"]:
                 const tabId = sender.tab.id;
                 const sMessage = this.sendMessage_;
                 this.execDynamicScript_(tabId, message.script, function(tId, res){
-                    sMessage({tab:tabId, type:T_REXEC, tool:message.tool, return:res},tId);
+                    sMessage({tab:tabId, type:t["T_REXEC"], tool:message.tool, return:res},tId);
                 }.bind(sMessage, tabId));
                 break;
-            case T_HIDE:
+            case t["T_HIDE"]:
                 this._tabPool[sender.tab.id].tools[message.tool].hide = true;
                 break;
-        }
-    },
-
-    /**
-     * Load assets;
-     */
-    loadAssets_:function(){
-        this._netStorage.setCallback_(this.callBackAssets_.bind(this));
-        this._netStorage.getFromUrl_(
-            chrome.runtime.getURL("elements/assetlist.json"),
-            "GET"
-        );
-    },
-
-    /**
-     * Callback for loaded asstes;
-     * @callback loadAssets
-     */
-    callBackAssets_:function(){
-        if(this._netStorage._ctx.readyState==4){
-            var assets = JSON.parse(this._netStorage._ctx.responseText).assets;
-            assets.forEach(function(itm,idx){
-                this._assets[itm.asset] = chrome.runtime.getURL(itm.url);
-            }.bind(this));
+            case t["T_GAVTL"]:
+                const tools = this.getOpenedWindows_(sender.tab.id);
+                respCallback({type: t["T_RAVTL"], tools: tools});
+                break;
         }
     },
 
@@ -203,13 +218,12 @@ ToolKit.prototype = {
      * @param @callback evntCallback Function called on context menu click;
      * @param {string} parentId Optional parameter. Item inside another context;
      */
-    createContextM_:function(id, type, title, evntCallback, parentId=null){
+    createContextM_:function(id, type, title, parentId=null){
         chrome.contextMenus.create({
             "id": id,
             "title": title,
             "contexts":[type],
-            "parentId": (parentId!==null ? parentId : null),
-            "onclick": (evntCallback!==null ? evntCallback.bind(this) : null)},
+            "parentId": (parentId!==null ? parentId : null)},
             function(){
                 //console.log(chrome.runtime.lastError);
             }
@@ -281,17 +295,16 @@ ToolKit.prototype = {
      * @return {JsonObject}: Object with all scriptss to inject
      */
     getScriptChainTool_:function(_inTabId, _inToolJs){
-
         if(!this._tabPool[_inTabId].frontendInit){
             this._tabPool[_inTabId].frontendInit = true;
             return scriptChainObj = {
-                    file:"js/types.js", type:"js", 
+                    file:"js/core/types.js", type:"js", 
                         next:{file:"css/css.css", type:"css", 
-                            next:{file:"js/ajax.js", type:"js",
-                                next:{file:"js/elementbuilder.js", type:"js",
+                            next:{file:"js/core/ajax.js", type:"js",
+                                next:{file:"js/core/elementbuilder.js", type:"js",
                                     next:{file:"js/tools/tool.js", type:"js",
-                                        next:{file:"js/frontend.js", type:"js",
-                                            next:{file:"js/tools/"+_inToolJs+".js", type:"js"
+                                        next:{file:"js/core/frontend.js", type:"js",
+                                            next:{file:"js/tools/"+_inToolJs+"/"+_inToolJs+".js", type:"js"
                                         }
                                     }
                                 }
@@ -301,91 +314,37 @@ ToolKit.prototype = {
                 };
         } else {
             return {
-                file:"js/tools/"+_inToolJs+".js",
+                file:"js/tools/"+_inToolJs+"/"+_inToolJs+".js",
                 type: "js"
             };
         }
     },
-    
-    //
-    // TOOL EVENTS -------------
-    //
-    
-    /**
-     * Function event for click in Base64 Encode-Decode tool;
-     * @implements chrome.contextMenus.onClicked
-     */
-    base64EncodeDecodeEvt_:function(info, tab){
-        if(!this.checkTool_(tab.id, ID_B64)){
-            //Initializing TOOL
-            this.initializeTool_(tab, ID_B64);
-
-            this.execScriptChain_(tab.id, this.getScriptChainTool_(tab.id, ID_B64));
-        } else {
-            this.sendMessage_({type:T_UHIDE, tool:ID_B64}, tab.id);
-        }
-    },
-    
-    /**
-     * Function event for click in Code Highlint option on tool menu
-     * @implements chrome.contextMenus.onClicked
-     */
-    codeHighlightEvt_:function(info, tab){
-        if(!this.checkTool_(tab.id, ID_COD)){
-            //Initializing TOOL
-            this.initializeTool_(tab, ID_COD);
-
-            this.execScriptChain_(tab.id, this.getScriptChainTool_(tab.id, ID_COD));
-        } else {
-            this.sendMessage_({type:T_UHIDE, tool:ID_COD}, tab.id);
-        }
-    },
 
     /**
-     * Function event for click on HexConverter
-     * @implements chrome.contextMenus.onClicked
+     * Listener for context menus;
+     * @param {object} info Info about clicked context
+     * @param {object} tab Tab origin of the event
      */
-    hexConverterEvt_:function(info, tab){        
-        if(!this.checkTool_(tab.id, ID_HEX)){
+    contexteEventListener_:function(info, tab){
+        const IDMENU = info.menuItemId;
+        if(!this.checkTool_(tab.id, IDMENU)){
             //Initializing TOOL
-            this.initializeTool_(tab, ID_HEX);
-            
-            this._tabPool[tab.id].tools[ID_HEX].data = "";
+            this.initializeTool_(tab, IDMENU);
 
-            this.execScriptChain_(tab.id, this.getScriptChainTool_(tab.id, "hexconverter"));
+            if(info.selectionText !== undefined){
+                this._tabPool[tab.id].tools[IDMENU].data = info.selectionText;
+            }
+
+            this.execScriptChain_(tab.id, this.getScriptChainTool_(tab.id, IDMENU));
         } else {
-            this.sendMessage_({type:T_UHIDE, tool:ID_HEX}, tab.id);
-        }
-    },
 
-    /**
-     * Function event for click on TranslateIt (Tool)
-     * @implements chrome.contextMenus.onClicked
-     */
-    translateEvt_:function(info, tab){
-        if(!this.checkTool_(tab.id, ID_TIT)){
-            //Initializing TOOL
-            this.initializeTool_(tab, ID_TIT);
+            if(info.selectionText !== undefined){
+                this._tabPool[tab.id].tools[IDMENU].data = info.selectionText;
+            }
 
-            this._tabPool[tab.id].tools[ID_TIT].data = "";
+            this._tabPool[tab.id].tools[IDMENU].hide = false;
 
-            //Couldn't find way to not duplicate it.
-            this.execDynamicScript_(tab.id, "window.getSelection().toString();", 
-                function(data){ 
-                    this._tabPool[tab.id].tools[ID_TIT].data = data[0];
-
-                    this.execScriptChain_(tab.id, this.getScriptChainTool_(tab.id, "translateit"));
-                }.bind(this)
-            );
-        } else {
-            //Couldn't find way to not duplicate it.
-            this.execDynamicScript_(tab.id, "window.getSelection().toString();", 
-                function(data){ 
-                    var dataTool = this._tabPool[tab.id].tools[ID_TIT];
-                    dataTool.data = data[0];
-                    this.sendMessage_({type:T_UHIDE, tool:ID_TIT, data:dataTool.data}, tab.id);
-                }.bind(this)
-            );
+            this.sendMessage_({type:this._types["T_UHIDE"], tool:IDMENU}, tab.id);
         }
     },
 
@@ -399,7 +358,7 @@ ToolKit.prototype = {
 
         this._netStorage.setCallback_(this.callBackForElements_.bind(this, tid, elmId));
         this._netStorage.getFromUrl_(
-            url("elements/"+elmId+".json"), 
+            url("js/tools/"+elmId+"/"+elmId+".json"), 
             "GET"
         ); //Find way to improve it
     },
@@ -421,15 +380,15 @@ ToolKit.prototype = {
      */
     callBackForElements_:function(_inTabId, _inToolId){
         if(this._netStorage._ctx.readyState==4){
-            const dataTool = (this._tabPool[_inTabId].tools[_inToolId].data!==undefined) ? this._tabPool[_inTabId].tools[_inToolId].data : "";
-            
-            this.sendMessage_(
+            const dataTool = (this._tabPool[_inTabId].tools[_inToolId]!==undefined) ? this._tabPool[_inTabId].tools[_inToolId].data : "";
+
+                this.sendMessage_(
                 {
-                    type:T_ASYW, /*Type of message*/
+                    type:this._types["T_ASYW"], /*Type of message*/
                     tabId:_inTabId, /*Tab ID*/
                     data:this._netStorage._ctx.responseText, /*JSON from elementchain*/
                     tool:_inToolId, /*ID of tool*/
-                    tool_data: dataTool/*Data from tool. e. g. selected text from translateit*/
+                    tool_data:dataTool/*Data from tool. e. g. selected text from translateit*/
                 },
                 _inTabId
             );
@@ -453,6 +412,19 @@ ToolKit.prototype = {
         } else {
             chrome.tabs.insertCSS(tabId, {file:sChain.file}, extendedChain.bind(this, sChain, tabId));
         }
+    },
+
+    /**
+     * Tools opened in the screen.
+     */
+    getOpenedWindows_:function(_inTabId){
+        let tools = [];
+        for(tl in this._tabPool[_inTabId].tools){
+            if(!this._tabPool[_inTabId].tools[tl].hide)
+                tools.push(tl);
+        }
+
+        return tools;
     }
 };
 
