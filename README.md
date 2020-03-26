@@ -1,6 +1,6 @@
 # Toolkit - Swiss
 
-**Active Project**
+**Project on HOLD indefinitely**
 
 **Official version:** [0.3](#version-flow);
 **Status:** Still under development / Testing;
