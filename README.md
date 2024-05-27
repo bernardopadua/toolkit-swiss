@@ -1,6 +1,6 @@
 # Toolkit - Swiss
 
-**Project on HOLD indefinitely**
+**Project TERMINATED** is now legacy.
 
 **Official version:** [0.3](#version-flow);
 **Status:** Still under development / Testing;
